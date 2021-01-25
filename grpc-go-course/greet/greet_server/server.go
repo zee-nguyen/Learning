@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"strconv"
@@ -25,7 +26,7 @@ func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.G
 	return res, nil
 }
 
-// Streaming
+// Streaming Server
 func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb.GreetService_GreetManyTimesServer) error {
 	fmt.Printf("GreetManyTimes function was invoked with %v\n", req)
 	firstName := req.GetGreeting().GetFirstName()
@@ -39,6 +40,30 @@ func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb
 	}
 
 	return nil
+}
+
+// Streaming Client
+// Here, the server will only respond to the client once the client is done sending request. (but in theory, the server can respond whenever it wants.)
+func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
+	fmt.Printf("LongGreet function was invoked with a streaming request\n")
+
+	result := ""
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// finished reading the client stream
+			return stream.SendAndClose(&greetpb.LongGreetResponse{
+				Result: result,
+			})
+		}
+		if err != nil {
+			log.Fatalf("Error whilst reading client stream: %v", err)
+		}
+
+		firstName := req.GetGreeting().GetFirstName()
+		result += "Hello " + firstName + "! "
+	}
 }
 
 func main() {
