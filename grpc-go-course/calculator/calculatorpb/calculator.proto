@@ -12,6 +12,15 @@ message Response {
   int32 sum = 1;
 }
 
+// Streaming Server
+message PrimeNumberDecompositionRequest {
+  int64 number = 1;
+}
+message PrimeNumberDecompositionResponse {
+  int64 prime_factor = 1; 
+}
+
 service CalculatorService {
   rpc Sum(Request) returns (Response) {};
+  rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest) returns (stream PrimeNumberDecompositionResponse) {};
 }

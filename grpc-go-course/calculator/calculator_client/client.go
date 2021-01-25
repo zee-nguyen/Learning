@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	cpb "../calculatorpb"
@@ -21,7 +22,8 @@ func main() {
 
 	c := cpb.NewCalculatorServiceClient(cc)
 
-	doSum(c)
+	// doSum(c)
+	doPrimeNumberDecomposition(c)
 }
 
 func doSum(c cpb.CalculatorServiceClient) {
@@ -38,4 +40,31 @@ func doSum(c cpb.CalculatorServiceClient) {
 	}
 
 	log.Printf("Response from Calculator: %v", res.Sum)
+}
+
+func doPrimeNumberDecomposition(c cpb.CalculatorServiceClient) {
+	fmt.Println("Doing prime number decompos Server Streaming RPC...")
+
+	// building a request
+	req := &cpb.PrimeNumberDecompositionRequest{
+		Number: 35135442,
+	}
+
+	resStream, err := c.PrimeNumberDecomposition(context.Background(), req)
+	if err != nil {
+		log.Fatalf("error while calling Calculator RPC: %v", err)
+	}
+
+	// iterate through stream response
+	for {
+		msg, err := resStream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("error whilst reading stream: %v", err)
+		}
+
+		log.Printf("Response from DoPrimeNumberDecomposition: %v", msg.GetPrimeFactor())
+	}
 }
