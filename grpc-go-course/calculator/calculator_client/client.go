@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	cpb "../calculatorpb"
 	grpc "google.golang.org/grpc"
@@ -23,7 +24,8 @@ func main() {
 	c := cpb.NewCalculatorServiceClient(cc)
 
 	// doSum(c)
-	doPrimeNumberDecomposition(c)
+	// doPrimeNumberDecomposition(c)
+	doComputeAverage(c)
 }
 
 func doSum(c cpb.CalculatorServiceClient) {
@@ -67,4 +69,45 @@ func doPrimeNumberDecomposition(c cpb.CalculatorServiceClient) {
 
 		log.Printf("Response from DoPrimeNumberDecomposition: %v", msg.GetPrimeFactor())
 	}
+}
+
+// Client Streaming
+func doComputeAverage(c cpb.CalculatorServiceClient) {
+	fmt.Println("Computing average Client Streaming RPC...")
+
+	req := []*cpb.ComputeAverageRequest{
+		&cpb.ComputeAverageRequest{
+			Number: 15,
+		},
+		&cpb.ComputeAverageRequest{
+			Number: 20,
+		},
+		&cpb.ComputeAverageRequest{
+			Number: 25,
+		},
+		&cpb.ComputeAverageRequest{
+			Number: 30,
+		},
+		&cpb.ComputeAverageRequest{
+			Number: 35,
+		},
+	}
+
+	stream, err := c.ComputeAverage(context.Background())
+	if err != nil {
+		log.Fatalf("error whlist calling ComputeAverage: %v", err)
+	}
+
+	for _, r := range req {
+		fmt.Printf("Sending req: %v\n", r)
+		stream.Send(r)
+		time.Sleep(1000 * time.Millisecond)
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("error whilst receiving response from ComputeAverage: %v", err)
+	}
+
+	fmt.Printf("ComputeAverage Response: %v\n", res)
 }

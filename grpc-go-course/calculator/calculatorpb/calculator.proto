@@ -12,7 +12,7 @@ message Response {
   int32 sum = 1;
 }
 
-// Streaming Server
+// Server Streaming 
 message PrimeNumberDecompositionRequest {
   int64 number = 1;
 }
@@ -20,7 +20,17 @@ message PrimeNumberDecompositionResponse {
   int64 prime_factor = 1; 
 }
 
+// Client Streaming 
+message ComputeAverageRequest {
+  int64 number = 1;
+}
+
+message ComputeAverageResponse {
+  int64 average = 1;
+}
+
 service CalculatorService {
   rpc Sum(Request) returns (Response) {};
   rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest) returns (stream PrimeNumberDecompositionResponse) {};
+  rpc ComputeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
 }
