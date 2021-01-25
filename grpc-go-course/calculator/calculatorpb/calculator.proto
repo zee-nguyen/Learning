@@ -22,11 +22,11 @@ message PrimeNumberDecompositionResponse {
 
 // Client Streaming 
 message ComputeAverageRequest {
-  int64 number = 1;
+  int32 number = 1;
 }
 
 message ComputeAverageResponse {
-  int64 average = 1;
+  double average = 1;
 }
 
 service CalculatorService {
