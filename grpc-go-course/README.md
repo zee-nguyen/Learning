@@ -69,5 +69,9 @@
   - Hence, C would be "aware" of the deadline of the client A...
 
 
+### SSL Encryption in gRPC
+- [https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-auth-support.md](https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-auth-support.md)
+
+
 ## Good Practices
 - Messages can be reused, however, usually in rpc, when you define a new rpc, you should create new request and response message types.
