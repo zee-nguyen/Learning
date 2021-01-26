@@ -71,6 +71,36 @@ func (*server) ComputeAverage(stream cpb.CalculatorService_ComputeAverageServer)
 	}
 }
 
+// Bi-directional streaming
+// takes a stream of request message that has one integer, and returns a stream of responses that represent the current maximum between all these integers
+func (*server) FindMaximum(stream cpb.CalculatorService_FindMaximumServer) error {
+	fmt.Printf("Received FindMaximum RPC...\n")
+	curMax := int32(0)
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error whilst reading client stream: %v", err)
+			return err
+		}
+
+		number := req.GetNumber()
+		if number > curMax {
+			curMax = number // update max
+			sendErr := stream.Send(&cpb.FindMaximumResponse{
+				Maximum: curMax,
+			})
+			if sendErr != nil {
+				log.Fatalf("Error whilst sending data to client: %v", sendErr)
+				return sendErr
+			}
+		}
+	}
+}
+
 func main() {
 	fmt.Println("Calculator server running...")
 
