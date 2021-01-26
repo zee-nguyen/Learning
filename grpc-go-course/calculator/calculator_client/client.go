@@ -9,6 +9,8 @@ import (
 
 	cpb "../calculatorpb"
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -26,7 +28,8 @@ func main() {
 	// doSum(c)
 	// doPrimeNumberDecomposition(c)
 	// doComputeAverage(c)
-	doFindMaximum(c)
+	// doFindMaximum(c)
+	doErrUnary(c)
 }
 
 func doSum(c cpb.CalculatorServiceClient) {
@@ -143,4 +146,41 @@ func doFindMaximum(c cpb.CalculatorServiceClient) {
 
 	// block until everyone is done
 	<-waitc
+}
+
+// Error handling example
+func doErrUnary(c cpb.CalculatorServiceClient) {
+	// correct call
+	doErrorCall(c, 10)
+
+	// error call
+	doErrorCall(c, -2)
+}
+
+func doErrorCall(c cpb.CalculatorServiceClient, n int32) {
+	resp, err := c.SquareRoot(context.Background(), &cpb.SquareRootRequest{Number: n})
+
+	if err != nil {
+		// err converted into the respErr
+		// which is gRPC-friendly error that has message and code
+		// but only if this `err` is actual gRPC error
+		// if NOT, you'll get `ok` being false,
+		// you can throw the normal error (the else clause)
+		respErr, ok := status.FromError(err)
+		if ok {
+			// actual error from gRPC (user error)
+			fmt.Printf("Error message from server: %v\n", respErr.Message())
+			fmt.Println(respErr.Code())
+
+			if respErr.Code() == codes.InvalidArgument {
+				fmt.Println("We probably sent a negative number!")
+				return
+			}
+		} else {
+			// bigger error, framework type of error
+			log.Fatalf("Big Error calling SquareRoot: %v", err)
+			return
+		}
+	}
+	fmt.Printf("Result of square root of %v: %v\n", n, resp.GetNumberRoot())
 }
