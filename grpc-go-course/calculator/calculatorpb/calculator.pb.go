@@ -787,7 +787,11 @@ type CalculatorServiceClient interface {
 	ComputeAverage(ctx context.Context, opts ...grpc.CallOption) (CalculatorService_ComputeAverageClient, error)
 	// Bi-directional streaming
 	FindMaximum(ctx context.Context, opts ...grpc.CallOption) (CalculatorService_FindMaximumClient, error)
-	// Unary
+	//
+	//Unary
+	//
+	//Error handling:
+	//This RPC will throw an exception if the sent number is negative. The error being sent is of type `INVALID_ARGUMENT`
 	SquareRoot(ctx context.Context, in *SquareRootRequest, opts ...grpc.CallOption) (*SquareRootResponse, error)
 }
 
@@ -924,7 +928,11 @@ type CalculatorServiceServer interface {
 	ComputeAverage(CalculatorService_ComputeAverageServer) error
 	// Bi-directional streaming
 	FindMaximum(CalculatorService_FindMaximumServer) error
-	// Unary
+	//
+	//Unary
+	//
+	//Error handling:
+	//This RPC will throw an exception if the sent number is negative. The error being sent is of type `INVALID_ARGUMENT`
 	SquareRoot(context.Context, *SquareRootRequest) (*SquareRootResponse, error)
 }
 

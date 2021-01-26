@@ -56,5 +56,18 @@
 
 ```
 
+### Deadlines
+* Deadlines allow gRPC clients to specify how long they are willing to wait for an RPC to complete before the RPC is terminated with the error `DEADLINE_EXCEEDED`
+* The gRPC documentation recommends you set a deadline for ALL client RPC calls
+* Setting the deadline is up to you: how long do you feel your API should have to complete?
+  - usually small APIs: 100 ms, 500 ms, or 1000 ms (if slower response is okay)
+  - for long API call: 5 min?
+  - etc... up to you.
+* The server should check if the deadline has exceeded and cancel the work it is doing.
+* **NOTE**: Deadlines are propagated across if gRPC alls are chained. For example:
+  - A => B => C (deadline for A is passed to B and then passed to C)
+  - Hence, C would be "aware" of the deadline of the client A...
+
+
 ## Good Practices
 - Messages can be reused, however, usually in rpc, when you define a new rpc, you should create new request and response message types.
