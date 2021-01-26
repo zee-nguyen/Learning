@@ -35,5 +35,26 @@
 ************                               ************
 ```
 
+## Bi-Directional Streaming API
+
+* Bi-Directional Streaming RPC API are a NEW kind API enabled thanks to HTTP/2
+* The client will send **many messages** to the server and will receive **many responses** from the server
+* **The number of requests and responses does not have to match**
+* Bi-Directional Streaming RPC are well suited for:
+  - When the client and the server needs to send a lot of data asynchronously
+  - "Chat" protocol
+  - Long running connections
+* In gRPC, Bi Directional Streaming API are defined using the keyword `stream`, **twice**
+
+```
+              Bi-Directional Streaming API
+************                               ************
+*          * --> req ..., 3, 2, 1, 0 ----> *          *
+*  client  *                               *  server  *
+*          * <-- resp 0, 1, 2, 3, ... <--- *          *
+************                               ************
+
+```
+
 ## Good Practices
 - Messages can be reused, however, usually in rpc, when you define a new rpc, you should create new request and response message types.
