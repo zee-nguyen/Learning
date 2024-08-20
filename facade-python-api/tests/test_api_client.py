@@ -1,4 +1,4 @@
-from service import Service
+from app.api_client import APIClient
 import unittest
 from unittest.mock import Mock, patch
 from dotenv import load_dotenv
@@ -6,10 +6,11 @@ import requests
 import os
 
 load_dotenv()
+base_url = os.getenv("BASE_URL")
 
 
-class TestService(unittest.TestCase):
-    @patch("service.requests.get")
+class TestAPIClient(unittest.TestCase):
+    @patch("app.api_client.requests.get")
     def test_get_data_success(self, mock_get):
         mock_resp = Mock()
         mock_resp_values = [
@@ -23,22 +24,19 @@ class TestService(unittest.TestCase):
         mock_resp.status_code = 200
         mock_resp.json.return_value = mock_resp_values
         mock_get.return_value = mock_resp
-        base_url = os.getenv("BASE_URL")
 
-        service = Service(base_url)
+        api_client = APIClient()
 
-        result = service.get_data("posts")
+        result = api_client.get_data("posts")
         self.assertEqual(result, mock_resp_values)
         mock_get.assert_called_once_with(f"{base_url}/posts", params=None)
 
-    @patch("service.requests.get")
+    @patch("app.api_client.requests.get")
     def test_get_data_failture(self, mock_get):
         mock_get.side_effect = requests.exceptions.HTTPError("Error")
-        base_url = os.getenv("BASE_URL")
-
-        service = Service(base_url)
+        api_client = APIClient()
         with self.assertRaises(requests.exceptions.HTTPError):
-            service.get_data("posts")
+            api_client.get_data("posts")
 
 
 if __name__ == "__main__":
